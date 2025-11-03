@@ -14,14 +14,14 @@ class Brecho(models.Model):
 
 
 class Contact(models.Model):
-    email = models.EmailField()
+    email = models.EmailField(primary_key=True)
     phone = models.CharField(null=True, max_length=30)
     instagram = models.CharField(null=True, max_length=30)
     brecho = models.ForeignKey(Brecho, on_delete = models.CASCADE)
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(primary_key=True)
 
 
 class Produto(models.Model):
@@ -29,7 +29,7 @@ class Produto(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     brecho = models.ForeignKey(Brecho, on_delete = models.CASCADE) 
     tags = models.ManyToManyField(Tag)
-    
+
 
 class User(models.Model):
     name = models.CharField(max_length=50)
