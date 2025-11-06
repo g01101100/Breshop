@@ -4,7 +4,7 @@ from .models import *
 import json
 
 
-def produtosAPI(request):
+def produtoAPI(request):
     if request.method == 'GET':
         listaProdutos = list(Produto.objects.all().values())
         return JsonResponse(listaProdutos, safe=False)
