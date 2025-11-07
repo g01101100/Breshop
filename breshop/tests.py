@@ -65,7 +65,7 @@ class UserTest(TestCase):
         self.assertEqual(listUser[0]["name"], 'Joao')
         self.assertEqual(listUser[1]["email"], 'carol@gmail.com')
         
-        adress_id = listUser[1]["adress"]
+        adress_id = listUser[1]["adress_id"]
         adress = Adress.objects.get(id=adress_id)
         self.assertEqual(adress.city, 'Belem')
 

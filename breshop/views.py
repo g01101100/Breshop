@@ -8,6 +8,11 @@ def produtoAPI(request):
         listaProdutos = list(Produto.objects.all().values())
         return JsonResponse(listaProdutos, safe=False)
 
+def userAPI(request):
+    if request.method == 'GET':
+        listaUser = list(User.objects.all().values())
+        return JsonResponse(listaUser, safe=False)
+
 
 def cadastrar_Produto(request):
     return render(request, "cadastrar.html")
