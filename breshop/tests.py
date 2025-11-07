@@ -19,7 +19,7 @@ class ProdutoTest(TestCase):
 
     
     def test_GET_Produto(self):
-        response = self.client.get('/produto/')
+        response = self.client.get('/produtos/')
         self.assertEqual(response.status_code, 200)
         
         data = response.json()
@@ -55,7 +55,7 @@ class UserTest(TestCase):
         
 
     def test_GET_User(self):
-        response = self.client.get('/user/')
+        response = self.client.get('/users/')
         self.assertEqual(response.status_code, 200)
 
         listUser = response.json()
