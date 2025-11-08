@@ -14,19 +14,12 @@ class Adress(models.Model):
 class Brecho(models.Model):
     name = models.CharField(max_length=50)
     adress = models.OneToOneField(Adress, null=True, on_delete = models.SET_NULL)
+    email = models.EmailField()
+    phone = models.CharField(null=True, max_length=12)
+    instagram = models.CharField(null=True, max_length=30)
 
     def __str__(self) -> str:
         return self.name
-
-
-class Contact(models.Model):
-    email = models.EmailField(primary_key=True)
-    phone = models.CharField(null=True, max_length=30)
-    instagram = models.CharField(null=True, max_length=30)
-    brecho = models.ForeignKey(Brecho, on_delete = models.CASCADE)
-
-    def __str__(self) -> str:
-            return self.email
 
 
 class Tag(models.Model):

@@ -6,8 +6,6 @@ admin.site.register(Adress)
 
 admin.site.register(Brecho)
 
-admin.site.register(Contact)
-
 admin.site.register(Tag)
 
 admin.site.register(Produto)
