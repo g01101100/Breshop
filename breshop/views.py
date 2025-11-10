@@ -3,10 +3,10 @@ from django.http import JsonResponse
 from .models import *
 
 
-def produtoAPI(request):
+def productAPI(request):
     if request.method == 'GET':
-        listaProdutos = list(Produto.objects.all().values())
-        return JsonResponse(listaProdutos, safe=False)
+        listaProducts = list(Product.objects.all().values())
+        return JsonResponse(listaProducts, safe=False)
 
 def userAPI(request):
     if request.method == 'GET':
@@ -22,6 +22,11 @@ def brechoAPI(request):
     if request.method == 'GET':
         listaBrecho = list(Brecho.objects.all().values())
         return JsonResponse(listaBrecho, safe=False)
+
+def addressAPI(request):
+    if request.method == 'GET':
+        listaAdress = list(Address.objects.all().values())
+        return JsonResponse(listaAdress, safe=False)
 
 
 def cadastrar_Produto(request):

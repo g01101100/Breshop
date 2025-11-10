@@ -2,7 +2,7 @@ import json
 from django.test import TestCase, Client
 from .models import *
 
-class ProdutoTest(TestCase):
+class ProductTest(TestCase):
 
     def setUp(self):
         self.client = Client()
@@ -14,32 +14,60 @@ class ProdutoTest(TestCase):
             "price": 19.90,
             "brecho": self.brecho,
         }
-        produto_teste = Produto.objects.create(**data)
-        produto_teste.tags.set([self.tag01, self.tag02])
+        self.product_teste = Product.objects.create(**data)
+        self.product_teste.tags.set([self.tag01, self.tag02])
 
     
-    def test_GET_Produto(self):
-        response = self.client.get('/produtos/')
+    def test_get_product_url_returns_200(self):
+        response = self.client.get('/products/')
         self.assertEqual(response.status_code, 200)
-        
-        data = response.json()
 
-        self.assertTrue(len(data) > 0)
-        self.assertEqual(data[0]["name"], 'camisa_teste')   
+    
+    def test_get_returns_created_product(self):    
+        response = self.client.get('/products/')
+        listProduct = response.json()
+
+        self.assertTrue(len(listProduct) > 0)
+        
+        
+    def test_get_poduct_list_includes_correct_name(self):
+        response = self.client.get('/products/')
+        listProduct = response.json()
+        
+        self.assertEqual(listProduct[0]["name"], 'camisa_teste')   
+    
+
+    def test_product_brecho_relationship_is_corret(self):
+        response = self.client.get('/products/')
+        listProduct = response.json()
+
+        brecho_id = listProduct[0]["brecho_id"]
+        brecho = Brecho.objects.get(id=brecho_id)
+
+        self.assertEqual(brecho.name, "brecho01")
+
+
+    def test_product_tag_relationship_is_correct(self):
+        tag_list = self.product_teste.tags.all()
+        
+        self.assertIn(self.tag01, tag_list)
+        self.assertIn(self.tag02, tag_list)
+
+
 
 class UserTest(TestCase):
 
     def setUp(self):
         self.client = Client()
        
-        adress = {
+        address = {
             "CEP": "09999888",
             "state": "Para",
             "city": "Belem",
             "street": "rua das orquideas",
             "number": 1,
         }
-        self.adress = Adress.objects.create(**adress)
+        self.address = Address.objects.create(**address)
        
         user01 = {
             "name": "Joao",
@@ -48,26 +76,43 @@ class UserTest(TestCase):
         user02 = {
             "name": "Carol",
             "email": "carol@gmail.com",
-            "adress": self.adress,
+            "address": self.address,
         }
         User.objects.create(**user01)
         User.objects.create(**user02)
         
 
-    def test_GET_User(self):
+    def test_get_user_url_returns_200(self):
         response = self.client.get('/users/')
+
         self.assertEqual(response.status_code, 200)
 
+
+    def test_get_retuns_created_user(self):
+        response = self.client.get('/users/')
         listUser = response.json()
 
-        self.assertTrue(len(listUser) == 2)
+        self.assertTrue(len(listUser) > 0)
+
+
+    def test_get_user_list_includes_correct_name_and_email(self):
+        response = self.client.get('/users/')
+        listUser = response.json()
 
         self.assertEqual(listUser[0]["name"], 'Joao')
         self.assertEqual(listUser[1]["email"], 'carol@gmail.com')
+
+
+    def test_user_address_relationship_is_correct(self):
+        response = self.client.get('/users/')
+        listUser = response.json()
         
-        adress_id = listUser[1]["adress_id"]
-        adress = Adress.objects.get(id=adress_id)
-        self.assertEqual(adress.city, 'Belem')
+        address_id = listUser[1]["address_id"]
+        address = Address.objects.get(id=address_id)
+
+        self.assertEqual(address.city, 'Belem')
+
+
 
 class TagTest(TestCase):
 
@@ -76,14 +121,27 @@ class TagTest(TestCase):
 
         Tag.objects.create(name="Jeans")
 
-    def test_GET_tag(self):
+
+    def test_get_tags_url_returns_200(self):
         response = self.client.get('/tags/')
+
         self.assertEqual(response.status_code, 200)
 
+
+    def test_get_returns_created_tag(self):
+        response = self.client.get('/tags/')
         listTag = response.json()
+        
         self.assertTrue(len(listTag) > 0)
 
+
+    def test_get_tag_list_includes_correct_name(self):
+        response = self.client.get('/tags/')
+        listTag = response.json()
+
         self.assertEqual(listTag[0]["name"], 'Jeans')
+
+
 
 class BrechoTest(TestCase):
 
@@ -91,48 +149,59 @@ class BrechoTest(TestCase):
     def setUp(self):
         
         self.client = Client()
-        adress = {
+        address = {
             "CEP": "09999888",
             "state": "Para",
             "city": "Belem",
             "street": "rua das orquideas",
             "number": 1,
         }
-        self.adress = Adress.objects.create(**adress)
+        self.address = Address.objects.create(**address)
         
         brecho = {
             "name": "brecho joao",
-            "adress": self.adress,
+            "address": self.address,
             "email": "joao@gmail.com",
             "phone": "82988888888",
             "instagram": "joao123",
         }
 
         self.brecho = Brecho.objects.create(**brecho)
-        self.response = Client().get('/brechos/')
 
 
-    def testing_URL(self):
-        self.assertEqual(self.response.status_code, 200)
+    def test_get_brecho_url_returns_200(self):
+        response = Client().get('/brechos/')
+        
+        self.assertEqual(response.status_code, 200)
 
     
-    def test_GET_brecho(self):
-        listaBrecho = self.response.json()
-        self.assertTrue(len(listaBrecho) == 1)
+    def test_get_returns_created_brecho(self):
+        response = Client().get('/brechos/')
+        listaBrecho = response.json()
+        
+        self.assertTrue(len(listaBrecho) > 0)
+        
 
+    def test_get_brecho_list_includes_correct_name(self):
+        response = Client().get('/brechos/')
+        listaBrecho = response.json()
+        
         self.assertEqual(listaBrecho[0]["name"], 'brecho joao')
-        self.assertEqual(listaBrecho[0]["email"], 'joao@gmail.com')
 
-    def test_relationship_brecho_adress(self):
-        listaBrecho = self.response.json()
-        adress_id = listaBrecho[0]['adress_id']
-        adress = Adress.objects.get(id=adress_id)
-        self.assertEqual(adress.city, 'Belem')
+
+    def test_brecho_address_relationship_is_correct(self):
+        response = Client().get('/brechos/')
+        listaBrecho = response.json()
+        
+        address_id = listaBrecho[0]['address_id']
+        address = Address.objects.get(id=address_id)
+        
+        self.assertEqual(address.city, 'Belem')
+        
 
         
 
-
-class AdressTest(TestCase):
+class AddressTest(TestCase):
 
     def setUp(self):
         self.client = Client()

@@ -1,6 +1,6 @@
 from django.db import models
 
-class Adress(models.Model):
+class Address(models.Model):
     CEP = models.CharField(max_length=8)
     state = models.CharField(max_length=20)
     city = models.CharField(max_length=20)
@@ -13,7 +13,7 @@ class Adress(models.Model):
 
 class Brecho(models.Model):
     name = models.CharField(max_length=50)
-    adress = models.OneToOneField(Adress, null=True, on_delete = models.SET_NULL)
+    address = models.OneToOneField(Address, null=True, on_delete = models.SET_NULL)
     email = models.EmailField()
     phone = models.CharField(null=True, max_length=12)
     instagram = models.CharField(null=True, max_length=30)
@@ -29,7 +29,7 @@ class Tag(models.Model):
         return self.name
 
 
-class Produto(models.Model):
+class Product(models.Model):
     name = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     brecho = models.ForeignKey(Brecho, on_delete = models.CASCADE) 
@@ -41,7 +41,7 @@ class Produto(models.Model):
 
 class User(models.Model):
     name = models.CharField(max_length=50)
-    adress = models.ForeignKey(Adress, null=True, on_delete = models.SET_NULL)
+    address = models.ForeignKey(Address, null=True, on_delete = models.SET_NULL)
     email = models.EmailField()
 
     def __str__(self) -> str:
