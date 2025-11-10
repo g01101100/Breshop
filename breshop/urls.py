@@ -6,4 +6,5 @@ urlpatterns = [
     path('users/', userAPI, name='userAPI'),
     path('tags/', tagAPI, name='tagAPI'),
     path('brechos/', brechoAPI, name='brechoAPI'),
+    path('addresses/', addressAPI, name='addressAPI'),
 ]
