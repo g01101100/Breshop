@@ -9,13 +9,19 @@ class ProductTest(TestCase):
         self.brecho = Brecho.objects.create(name="brecho01")
         self.tag01 = Tag.objects.create(name="shirt")
         self.tag02 = Tag.objects.create(name="short")
-        data = {
+        data01 = {
             "name": "camisa_teste",
             "price": 19.90,
             "brecho": self.brecho,
         }
-        self.product_teste = Product.objects.create(**data)
-        self.product_teste.tags.set([self.tag01, self.tag02])
+        data02 = {
+            "name": "bermuda_teste",
+            "price": 19.90,
+            "brecho": self.brecho,
+        }
+        self.product01 = Product.objects.create(**data01)
+        self.product02 = Product.objects.create(**data02)
+        self.product01.tags.set([self.tag01, self.tag02])
 
     
     def test_get_product_url_returns_200(self):
@@ -46,9 +52,12 @@ class ProductTest(TestCase):
 
         self.assertEqual(brecho.name, "brecho01")
 
+    def test_if_product_have_least_one_tag(self):
+        tagList = self.product01.tags.all()
+        self.assertTrue(tagList)
 
     def test_product_tag_relationship_is_correct(self):
-        tagList = self.product_teste.tags.all()
+        tagList = self.product01.tags.all()
         
         self.assertIn(self.tag01, tagList)
         self.assertIn(self.tag02, tagList)

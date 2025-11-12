@@ -1,31 +1,63 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.views import View
 from .models import *
+import json
 
-
-def productAPI(request):
-    if request.method == 'GET':
+class ProductView(View):
+    
+    def get(self, request, *args, **kwargs):
         listaProducts = list(Product.objects.all().values())
         return JsonResponse(listaProducts, safe=False)
+    
+    def post(self, request):
+        return JsonResponse()
 
-def userAPI(request):
-    if request.method == 'GET':
+class UserView(View):
+    
+    def get(self, request, *args, **kwargs):
         listaUsers = list(User.objects.all().values())
         return JsonResponse(listaUsers, safe=False)
 
-def tagAPI(request):
-    if request.method == 'GET':
-        listaTags = list(Tag.objects.all().values())
-        return JsonResponse(listaTags, safe=False)
 
-def brechoAPI(request):
-    if request.method == 'GET':
+class TagView(View):
+    
+    def get(self, request, *args, **kwargs):
+        listaTags = list(Tag.objects.all().values())
+        
+        return JsonResponse(listaTags, safe=False)
+    
+    def post(self, request, *args, **kwargs):
+
+        try:            
+            data = json.loads(request.body)
+            name = data['name']
+            
+            if not name:
+                return JsonResponse({'error': 'not null field: name'}, status=400)
+            
+            tag = Tag.objects.create(name=name) 
+            
+            return JsonResponse({
+                'name': tag.name
+            }, status=201)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON invalid'}, status=400)        
+
+class BrechoView(View):
+    
+    def get(self, request, *args, **kwargs):
         listaBrecho = list(Brecho.objects.all().values())
+        
         return JsonResponse(listaBrecho, safe=False)
 
-def addressAPI(request):
-    if request.method == 'GET':
+
+class AddressView(View):
+
+    def get(self, request, *args, **kwargs):
         listaAdress = list(Address.objects.all().values())
+        
         return JsonResponse(listaAdress, safe=False)
 
 
