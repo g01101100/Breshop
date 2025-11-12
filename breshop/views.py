@@ -13,6 +13,7 @@ class ProductView(View):
     def post(self, request):
         return JsonResponse()
 
+
 class UserView(View):
     
     def get(self, request, *args, **kwargs):
@@ -28,22 +29,41 @@ class TagView(View):
         return JsonResponse(listaTags, safe=False)
     
     def post(self, request, *args, **kwargs):
+        listaTags = list(Tag.objects.all().values())
 
         try:            
             data = json.loads(request.body)
-            name = data['name']
-            
-            if not name:
-                return JsonResponse({'error': 'not null field: name'}, status=400)
-            
-            tag = Tag.objects.create(name=name) 
-            
-            return JsonResponse({
-                'name': tag.name
-            }, status=201)
-        
         except json.JSONDecodeError:
             return JsonResponse({'error': 'JSON invalid'}, status=400)        
+            
+        name = data.get('name')
+            
+        if type(name) != str:
+            return JsonResponse({'error': 'this type of name is not valid'}, status=400)
+        
+        name = name.strip()
+        name = name.capitalize()
+
+        if not name:
+            return JsonResponse({'error': 'not null field: name'}, status=400)
+        
+        if len(name) < 3:
+            return JsonResponse({'error': 'the Tag.name must be longer than 2 characters'}, status=400)
+        
+        if {'name': name} in listaTags:
+            return JsonResponse({'error': 'this Tag already exist'}, status=400)
+        
+        if len(name.split()) > 1:
+            return JsonResponse({'error': 'the Tag.name must be a single word'}, status=400)
+        
+
+        tag = Tag.objects.create(name=name) 
+        
+        return JsonResponse({
+            'name': tag.name
+        }, status=201)
+        
+
 
 class BrechoView(View):
     

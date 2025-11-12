@@ -128,7 +128,11 @@ class TagTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        Tag.objects.create(name="Jeans")
+        self.data = {
+            "name": "Jeans"
+        }
+
+        Tag.objects.create(**self.data)
 
 
     def test_get_tags_url_returns_200(self):
@@ -150,6 +154,29 @@ class TagTest(TestCase):
 
         self.assertEqual(tagList[0]["name"], 'Jeans')
 
+    def test_post_tag_url_returns_201(self):
+        response = self.client.post('/tags/', data=json.dumps({'name': 'bag'}), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+
+    def test_post_tag_what_name_already_exist(self):
+        response = self.client.post('/tags/', data=json.dumps({"name": "jeans"}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_tag_with_no_name(self):
+        response = self.client.post('/tags/', data=json.dumps({'name': ''}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_tag_with_no_string_type(self):
+        response = self.client.post('/tags/', data=json.dumps({'name': 3}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_tag_with_only_space_name(self):
+        response = self.client.post('/tags/', data=json.dumps({'name': '   '}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_tag_with_multiple_words(self):
+        response = self.client.post('/tags/', data=json.dumps({'name': 'camisa preta'}), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
 
 class BrechoTest(TestCase):
