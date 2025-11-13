@@ -5,7 +5,7 @@ class Address(models.Model):
     state = models.CharField(max_length=20)
     city = models.CharField(max_length=20)
     street = models.CharField(max_length=50)
-    number = models.IntegerField()
+    number = models.IntegerField(null=True)
 
     def __str__(self) -> str:
         return f'state: {self.state} | city: {self.city}'
