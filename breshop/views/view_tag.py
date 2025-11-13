@@ -7,12 +7,12 @@ import json
 class TagView(View):
     
     def get(self, request, *args, **kwargs):
-        listaTags = list(Tag.objects.all().values())
+        listOfTags = list(Tag.objects.all().values())
         
-        return JsonResponse(listaTags, safe=False)
+        return JsonResponse(listOfTags, safe=False)
     
     def post(self, request, *args, **kwargs):
-        listaTags = list(Tag.objects.all().values())
+        listOfTags = list(Tag.objects.all().values())
 
         try:            
             data = json.loads(request.body)
@@ -33,7 +33,7 @@ class TagView(View):
         if len(name) < 3:
             return JsonResponse({'error': 'the Tag.name must be longer than 2 characters'}, status=400)
         
-        if {'name': name} in listaTags:
+        if {'name': name} in listOfTags:
             return JsonResponse({'error': 'this Tag already exist'}, status=400)
         
         if len(name.split()) > 1:

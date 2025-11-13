@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import *
+from breshop.views import view_address, view_becho, view_product, view_tag, view_user
 
 urlpatterns = [
-    path('products/', ProductView.as_view(), name='productView'),
-    path('users/', UserView.as_view(), name='View'),
-    path('tags/', TagView.as_view(), name='View'),
-    path('brechos/', BrechoView.as_view(), name='View'),
-    path('addresses/', AddressView.as_view(), name='View'),
+    path('addresses/', view_address.AddressView.as_view(), name='addressView'),
+    path('brechos/', view_becho.BrechoView.as_view(), name='brechoView'),
+    path('products/', view_product.ProductView.as_view(), name='productView'),
+    path('tags/', view_tag.TagView.as_view(), name='tagView'),
+    path('users/', view_user.UserView.as_view(), name='userView'),
 ]
