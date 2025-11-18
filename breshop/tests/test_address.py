@@ -46,7 +46,7 @@ class AddressTest(TestCase):
         self.assertEqual(addressList[0]["CEP"], '09999888')
 
 
-    def test_post_addess_url_returns_201(self):
+    def test_post_address_url_returns_201(self):
         response = self.client.post('/addresses/', data=json.dumps(self.address02), content_type='application/json')
         self.assertEqual(response.status_code, 201)
     

@@ -29,12 +29,10 @@ class AddressView(View):
         
 
         for field in listOfFields:
-            typeField = type(field)
-            if typeField == str:
-                field = field.strip()
-                if not field:
+            if type(field) == str:
+                if not field.strip():
                     return JsonResponse({'error': 'find some not null field'}, status=400)
-            elif typeField != int:
+            elif type(field) != int:
                 return JsonResponse({'error': 'find some not null field'}, status=400)
         
         cepCharacters = list(cep)
@@ -63,11 +61,11 @@ class AddressView(View):
 
         if address in listOfAddress:
             return JsonResponse({
-                'CEP': response.CEP,
-                'state': response.state,    
-                'city': response.city,    
-                'street': response.street,    
-                'number': response.number,    
+                'CEP': cep,
+                'state': state,    
+                'city': city,       
+                'street': street,    
+                'number': number,    
             }, status = 201)    
 
         response = Address.objects.create(**address)

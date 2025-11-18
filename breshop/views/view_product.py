@@ -11,4 +11,4 @@ class ProductView(View):
         return JsonResponse(listaProducts, safe=False)
     
     def post(self, request):
-        return JsonResponse()
+        return JsonResponse()   
