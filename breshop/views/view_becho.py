@@ -37,8 +37,7 @@ class BrechoView(View):
                 return JsonResponse({'error': 'find some not null field'}, status=400)
         
         for field in listOfAllFields:
-            if type(field) == str and re.search(r'[!#$%^&*()+={}\[\]\/\\|;:,<>?\'"]', field.strip()):
-                print(field)
+            if type(field) == str and re.search(r'[!#$%^&*()+={}\[\]\/\\|;:,\-<>?\'"]', field.strip()):
                 return JsonResponse({'error': 'Found invalid caracters in some field'}, status=400)
 
 

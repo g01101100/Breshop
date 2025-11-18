@@ -58,3 +58,59 @@ class UserTest(TestCase):
         address = Address.objects.get(id=address_id)
 
         self.assertEqual(address.city, 'Belem')
+
+    def test_post_user_url_return_201(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "user joao",
+            "address": self.address.id,
+            "email": "joao@gmail.com",
+            }), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+    
+
+    def test_post_user_missing_name_return_400(self):
+        response = Client().post('/users/', data=json.dumps({
+            "address": self.address.id,
+            "email": "joao@gmail.com",
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_user_name_with_spaces_return_400(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "   ",
+            "address": self.address.id,
+            "email": "joao@gmail.com",
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_user_name_with_invalid_caracteres_return_400(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "admin '--",
+            "address": self.address.id,
+            "email": "joao@gmail.com",
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+
+    def test_post_user_missing_address_return_201(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "user joao",
+            "email": "joao@gmail.com",
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        
+
+    def test_post_user_missing_email_return_400(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "user joao",
+            "address": self.address.id,
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_user_email_with_spaces_return_400(self):
+        response = Client().post('/users/', data=json.dumps({
+            "name": "user joao",
+            "address": self.address.id,
+            "email": "    ",
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
