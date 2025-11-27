@@ -41,11 +41,11 @@ class TagTest(TestCase):
         response = self.client.post('/tags/', data=json.dumps({"name": "jeans"}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_post_tag_with_no_name(self):
+    def test_post_tag_missing_name(self):
         response = self.client.post('/tags/', data=json.dumps({'name': ''}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_post_tag_with_no_string_type(self):
+    def test_post_tag_with_wrong_type(self):
         response = self.client.post('/tags/', data=json.dumps({'name': 3}), content_type='application/json')
         self.assertEqual(response.status_code, 400)
 

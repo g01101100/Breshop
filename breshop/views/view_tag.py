@@ -4,7 +4,7 @@ from django.views import View
 from breshop.models import Tag
 import json
 
-class TagView(View):
+class TagListCreateView(View):
     
     def get(self, request, *args, **kwargs):
         listOfTags = list(Tag.objects.all().values())
@@ -12,8 +12,6 @@ class TagView(View):
         return JsonResponse(listOfTags, safe=False)
     
     def post(self, request, *args, **kwargs):
-        listOfTags = list(Tag.objects.all().values())
-
         try:            
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -33,7 +31,8 @@ class TagView(View):
         if len(name) < 3:
             return JsonResponse({'error': 'the Tag.name must be longer than 2 characters'}, status=400)
         
-        if {'name': name} in listOfTags:
+
+        if Tag.objects.filter(name=name):
             return JsonResponse({'error': 'this Tag already exist'}, status=400)
         
         if len(name.split()) > 1:
@@ -42,7 +41,16 @@ class TagView(View):
 
         tag = Tag.objects.create(name=name) 
         
+        
         return JsonResponse({
             'name': tag.name
         }, status=201)
+    
+class TagDatailView(View):
+    def get(self, request, pk):
+        try:
+            tag = Tag.objects.values().get(pk=pk)
+        except:
+            return JsonResponse({'error': 'Tag não encontrada'}, status=404)
+        return JsonResponse(tag, safe=False)
         
