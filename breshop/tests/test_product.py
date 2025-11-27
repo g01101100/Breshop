@@ -9,18 +9,12 @@ class ProductTest(TestCase):
         self.brecho = Brecho.objects.create(name="brecho01")
         self.tag01 = Tag.objects.create(name="shirt")
         self.tag02 = Tag.objects.create(name="short")
-        data01 = {
+        self.data01 = {
             "name": "camisa_teste",
             "price": 19.90,
             "brecho": self.brecho,
         }
-        data02 = {
-            "name": "bermuda_teste",
-            "price": 19.90,
-            "brecho": self.brecho,
-        }
-        self.product01 = Product.objects.create(**data01)
-        self.product02 = Product.objects.create(**data02)
+        self.product01 = Product.objects.create(**self.data01)
         self.product01.tags.set([self.tag01, self.tag02])
 
     
@@ -61,3 +55,83 @@ class ProductTest(TestCase):
         
         self.assertIn(self.tag01, tagList)
         self.assertIn(self.tag02, tagList)
+
+
+    def test_post_product_url_returns_201(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda teste",
+            "price": 19.90,
+            "brecho": self.brecho.id,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+    
+
+    def test_post_product_missing_name_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "price": 19.90,
+            "brecho": self.brecho.id,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_product_name_with_spaces_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "   ",
+            "price": 19.90,
+            "brecho": self.brecho.id,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+
+    def test_post_product_missing_price_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "brecho": self.brecho.id,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_product_with_wrong_price_type_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "price": "19.90",
+            "brecho": self.brecho.id,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_product_missing_brecho_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "price": 19.90,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_product_with_wrong_brecho_id_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "price": 19.90,
+            "brecho": 0,
+            "listOfTags": [self.tag01.id, self.tag02.id],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_product_missing_tag_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "price": 19.90,
+            "brecho": self.brecho.id,
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+    
+    def test_post_product_with_wrong_tag_returns_400(self):
+        response = self.client.post('/products/', data=json.dumps({
+            "name": "bermuda_teste",
+            "price": 19.90,
+            "brecho": self.brecho.id,
+            "listOfTags": ["  shit "],
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)

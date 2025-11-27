@@ -10,5 +10,66 @@ class ProductView(View):
         listaProducts = list(Product.objects.all().values())
         return JsonResponse(listaProducts, safe=False)
     
-    def post(self, request):
-        return JsonResponse()   
+    def post(self, request, *args, **kwargs):
+        listOfProduct = list(Product.objects.all().values())
+
+        try:            
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON invalid'}, status=400)        
+            
+        name = data.get('name')
+        price = data.get('price')
+        brecho_id = data.get('brecho')
+        tagsIdList = data.get('listOfTags', [])
+        listOfFields = [name, price, brecho_id, tagsIdList]
+
+        for tagId in tagsIdList:
+            if type(tagId) != int:
+                return JsonResponse({'error': 'wrong tag type'}, status=400)
+        
+        if type(brecho_id) != int:
+            return JsonResponse({'error': 'wrong Brecho type'}, status=400)
+
+        if not Brecho.objects.filter(pk=brecho_id).exists():
+            return JsonResponse({'error': 'this brecho Id not exist'}, status=400)
+            
+        brecho = Brecho.objects.get(pk=brecho_id)
+
+        tags = Tag.objects.filter(pk__in=tagsIdList)
+
+        for field in listOfFields:
+            if type(field) == str:
+                field = field.strip()
+            if not field:
+                return JsonResponse({'error': 'Not null field'}, status=400)
+
+        if not isinstance(price, (int, float)):
+            return JsonResponse({'error': 'wrong price type'}, status=400)
+        
+        price = float(price)
+
+
+        if(type(tagsIdList) != list):
+            return JsonResponse({'error': 'Wrong type of listOfTags'}, status=400)
+        
+        if len(tagsIdList) != len(tags):
+            return JsonResponse({'error': 'one or many tags not exist'}, status=400)
+        
+
+        product = {
+            'name': name.strip(),
+            'price': price,
+            'brecho': brecho,
+        } 
+
+        response = Product.objects.create(**product)
+
+        response.tags.set(tags)
+
+        return JsonResponse({
+            'name': response.name,
+            'price': response.price,
+            'brecho': response.brecho.id,
+            'Tags_list': list(response.tags.values_list('id', flat=True))
+        }, status=201)   
