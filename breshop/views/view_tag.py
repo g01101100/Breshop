@@ -1,9 +1,15 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
-from breshop.models import Tag
-import json
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+from breshop.models import Tag
+
+import json
+import re
+
+@method_decorator(csrf_exempt, name='dispatch')
 class TagListCreateView(View):
     
     def get(self, request, *args, **kwargs):
@@ -22,6 +28,8 @@ class TagListCreateView(View):
         if type(name) != str:
             return JsonResponse({'error': 'this type of name is not valid'}, status=400)
         
+
+        
         name = name.strip()
         name = name.capitalize()
 
@@ -35,6 +43,9 @@ class TagListCreateView(View):
         if Tag.objects.filter(name=name):
             return JsonResponse({'error': 'this Tag already exist'}, status=400)
         
+        if(re.search(r'[!#$%^&*()+={}\[\]\/\\|;:,\-<>?\'"0-9]', name)):
+                return JsonResponse({'error': 'Found invalid caracters in Tag.name'}, status=400)
+        
         if len(name.split()) > 1:
             return JsonResponse({'error': 'the Tag.name must be a single word'}, status=400)
         
@@ -46,6 +57,8 @@ class TagListCreateView(View):
             'name': tag.name
         }, status=201)
     
+
+@method_decorator(csrf_exempt, name='dispatch')
 class TagDatailView(View):
     def get(self, request, pk):
         try:
@@ -54,3 +67,10 @@ class TagDatailView(View):
             return JsonResponse({'error': 'Tag não encontrada'}, status=404)
         return JsonResponse(tag, safe=False)
         
+    def delete(self, request, pk):
+        try:
+            tag = Tag.objects.get(pk=pk)
+            tag.delete()
+            return JsonResponse({"message": "Tag deletada"}, status=200)
+        except Tag.DoesNotExist:
+            return JsonResponse({"error": "Tag não encontrada"}, status=404)

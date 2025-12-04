@@ -1,10 +1,15 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
+
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from breshop.models import User, Address
+
 import json
 import re
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserView(View):
     
     def get(self, request, *args, **kwargs):
@@ -21,7 +26,7 @@ class UserView(View):
         
         name = data.get('name')
         email = data.get('email')
-        address = data.get('address_id')        
+        address_id = data.get('address')        
         
         listOfNotNullFields = [name, email]
 
@@ -30,6 +35,16 @@ class UserView(View):
                 return JsonResponse({'error': 'Invalid type field'}, status=400)
             if not field.strip():
                 return JsonResponse({'error': 'Found Null on not null field'}, status=400)
+            
+
+        if type(address_id) != int:
+            return JsonResponse({'error': 'wrong address type'}, status=400)
+
+        if not Address.objects.filter(pk=address_id).exists():
+            return JsonResponse({'error': 'this address Id not exist'}, status=400)
+        
+        address = Address.objects.get(pk=address_id)
+        
         
         
         if re.search(r'[!#$%^&*()+={}\[\]\/\\|;:, \-<>?\'"]', email.strip()):
@@ -57,5 +72,22 @@ class UserView(View):
         return JsonResponse({
             'name': response.name,
             'email': response.email,
-            'address': response.address,
+            'address': response.address.id,
         }, status = 201)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserDatailView(View):
+    def get(self, request, pk):
+        try:
+            user = User.objects.values().get(pk=pk)
+        except:
+            return JsonResponse({'error': 'user não encontrada'}, status=404)
+        return JsonResponse(user, safe=False)
+        
+    def delete(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            user.delete()
+            return JsonResponse({"message": "user deletada"}, status=200)
+        except user.DoesNotExist:
+            return JsonResponse({"error": "user não encontrada"}, status=404)

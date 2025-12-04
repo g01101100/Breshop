@@ -1,9 +1,14 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
+
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from breshop.models import Address
+
 import json
 
+@method_decorator(csrf_exempt, name='dispatch')
 class AddressView(View):
 
     def get(self, *args, **kwargs):
@@ -78,3 +83,19 @@ class AddressView(View):
             'number': response.number,    
         }, status = 201)
         
+@method_decorator(csrf_exempt, name='dispatch')
+class AddressDatailView(View):
+    def get(self, request, pk):
+        try:
+            address = Address.objects.values().get(pk=pk)
+        except:
+            return JsonResponse({'error': 'Address não encontrada'}, status=404)
+        return JsonResponse(address, safe=False)
+        
+    def delete(self, request, pk):
+        try:
+            address = Address.objects.get(pk=pk)
+            address.delete()
+            return JsonResponse({"message": "Address deletada"}, status=200)
+        except address.DoesNotExist:
+            return JsonResponse({"error": "Address não encontrada"}, status=404)
