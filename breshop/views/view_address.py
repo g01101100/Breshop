@@ -16,8 +16,12 @@ class AddressView(View):
     
         return JsonResponse(listOfAdress, safe=False)
     
-    def post(self, request, *args, **kwargs):
-        listOfAddress = list(Address.objects.all().values())
+    def put(self, request, pk):
+        try:
+            address = Address.objects.values().get(pk=pk)
+        except:
+            return JsonResponse({'error': 'Address not found'}, status=404)
+
 
         try:
             data = json.loads(request.body)
@@ -56,32 +60,21 @@ class AddressView(View):
         state = state.capitalize()
         city = city.capitalize()
         
-        address = {
-            'CEP': cep,
-            'state': state,
-            'city': city,
-            'street': street,
-            'number': number,
-        }
+        address.cep = cep
+        address.state = state
+        address.city = city
+        address.street = street
+        address.number = number
 
-        if address in listOfAddress:
-            return JsonResponse({
-                'CEP': cep,
-                'state': state,    
-                'city': city,       
-                'street': street,    
-                'number': number,    
-            }, status = 201)    
-
-        response = Address.objects.create(**address)
+        address.save()
 
         return JsonResponse({
-            'CEP': response.CEP,
-            'state': response.state,    
-            'city': response.city,    
-            'street': response.street,    
-            'number': response.number,    
-        }, status = 201)
+            'CEP': address.CEP,
+            'state': address.state,    
+            'city': address.city,    
+            'street': address.street,    
+            'number': address.number,    
+        }, status = 200)
         
 @method_decorator(csrf_exempt, name='dispatch')
 class AddressDatailView(View):

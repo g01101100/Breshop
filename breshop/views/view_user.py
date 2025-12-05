@@ -83,6 +83,58 @@ class UserDatailView(View):
         except:
             return JsonResponse({'error': 'user não encontrada'}, status=404)
         return JsonResponse(user, safe=False)
+    
+    def put(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User não encontrada"}, status=404)
+
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON invalid'}, status=400)
+        
+        name = data.get('name')
+        email = data.get('email')
+        address_id = data.get('address')        
+        
+        listOfNotNullFields = [name, email]
+
+        for field in listOfNotNullFields:
+            if type(field) != str:
+                return JsonResponse({'error': 'Invalid type field'}, status=400)
+            if not field.strip():
+                return JsonResponse({'error': 'Found Null on not null field'}, status=400)
+            
+
+        if type(address_id) != int:
+            return JsonResponse({'error': 'wrong address type'}, status=400)
+
+        if not Address.objects.filter(pk=address_id).exists():
+            return JsonResponse({'error': 'this address Id not exist'}, status=400)
+        
+        address = Address.objects.get(pk=address_id)
+        
+        
+        
+        if re.search(r'[!#$%^&*()+={}\[\]\/\\|;:, \-<>?\'"]', email.strip()):
+            return JsonResponse({'error': 'Found invalid caracters on field: email'}, status=400)
+        
+        if re.search(r'[!@#$%^&*()+={}\[\]\/\\|;:,.\-<>?\'"]', name.strip()):
+            return JsonResponse({'error': 'Found invalid caracters on field: email'}, status=400)
+
+        user.name = name
+        user.email = email
+        user.address = address_id
+
+        user.save()
+
+        return JsonResponse({
+            'name': user.name,
+            'email': user.email,
+            'address': user.address,
+        }, status = 200)
         
     def delete(self, request, pk):
         try:
